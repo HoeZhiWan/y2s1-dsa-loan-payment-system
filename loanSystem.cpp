@@ -118,7 +118,7 @@ void LoanSystem::makePayment(User *currentUser)
         if (loan.getLoanId() == loanId)
         {
             loanFound = true;
-            if (currentUser->getRole() == "BORROWER" && loan.getUserId() != currentUser->getUserId())
+            if (currentUser->getRole() == Role::BORROWER && loan.getUserId() != currentUser->getUserId())
             {
                 cout << "Error: You can only make payments for your own loans.\n";
                 return;
@@ -295,7 +295,7 @@ void LoanSystem::administerUsers()
         cout << left << setw(15) << user.getUserId()
              << setw(20) << user.getName()
              << setw(30) << user.getEmail()
-             << setw(15) << user.getRole() << "\n";
+             << setw(15) << (user.getRole() == Role::ADMIN ? "ADMIN" : "BORROWER") << "\n";
     }
 }
 
@@ -374,8 +374,8 @@ void LoanSystem::menuLoop()
 
     if (users.empty())
     {
-        users.push_back(User("U001", "John Doe", "john@example.com", "pass123", Role::BORROWER));
-        users.push_back(User("U002", "Jane Smith", "jane@example.com", "pass456", Role::ADMIN));
+        users.push_back(User("U001", "Wei Gang", "weigang@example.com", "pass123", Role::BORROWER));
+        users.push_back(User("U002", "Wei Jun", "weijun@example.com", "pass456", Role::ADMIN));
         FileHandling::saveUsers("data/users.txt", users);
     }
 
@@ -408,7 +408,7 @@ void LoanSystem::menuLoop()
 
             cout << "\nWelcome, " << loggedInUser->getName() << "!\n";
 
-            if (loggedInUser->getRole() == "BORROWER")
+            if (loggedInUser->getRole() == Role::BORROWER)
             {
                 while (true)
                 {

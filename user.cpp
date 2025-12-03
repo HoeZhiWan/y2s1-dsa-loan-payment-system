@@ -2,8 +2,8 @@
 
 using namespace std;
 
-User::User(string userId, string name, string email, string passwordHash, Role role)
-    : userId(userId), name(name), email(email), passwordHash(passwordHash), role(role)
+User::User(string userId, string name, string email, string password, Role role)
+    : userId(userId), name(name), email(email), password(password), role(role)
 {
 }
 
@@ -19,15 +19,15 @@ string User::getEmail() const {
     return email;
 }
 
-string User::getPasswordHash() const {
-    return passwordHash;
+string User::getPassword() const {
+    return password;
 }
 
-string User::getRole() const {
+Role User::getRole() const {
     if (role == Role::ADMIN) {
-        return "ADMIN";
+        return Role::ADMIN;
     }
-    return "BORROWER";
+    return Role::BORROWER;
 }
 
 void User::setName(const string& name) {
@@ -38,8 +38,8 @@ void User::setEmail(const string& email) {
     this->email = email;
 }
 
-void User::setPasswordHash(const string& passwordHash) {
-    this->passwordHash = passwordHash;
+void User::setPassword(const string& password) {
+    this->password = password;
 }
 
 void User::setRole(const string& role) {

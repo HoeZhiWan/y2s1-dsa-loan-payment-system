@@ -45,7 +45,7 @@ double Loan::calculateOutstandingBalance(const vector<Payment>& payments) const 
         }
     }
     
-    double balance = principal - totalPaid;
+    double balance = calculateTotalPayment() - totalPaid;
     return balance > 0 ? balance : 0.0;
 }
 

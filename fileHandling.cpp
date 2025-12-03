@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "searchNsort.h"
+
 using namespace std;
 
 void FileHandling::loadUsers(const string& filename, vector<User>& users) {
@@ -40,7 +42,7 @@ void FileHandling::saveUsers(const string& filename, const vector<User>& users) 
         file << user.getUserId() << ","
              << user.getName() << ","
              << user.getEmail() << ","
-             << user.getPasswordHash() << ","
+             << user.getPassword() << ","
              << user.getRole() << "\n";
     }
     
@@ -74,6 +76,8 @@ void FileHandling::loadLoans(const string& filename, vector<Loan>& loans) {
         
         loans.push_back(Loan(principal, interestRate, termYears, userId, loanId));
     }
+
+    SearchNSort::sortLoansByLoanID(loans);
     
     file.close();
 }
