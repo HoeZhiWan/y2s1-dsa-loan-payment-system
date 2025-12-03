@@ -4,13 +4,11 @@
 
 using namespace std;
 
-Payment::Payment(double amount, string paymentDate, string loanId)
-    : amount(amount), paymentDate(paymentDate), loanId(loanId)
-{
-    int r = rand() % 10000;
-    char buffer[10];
-    sprintf(buffer, "P%04d", r);
-    paymentId = string(buffer);
+Payment::Payment(double amount, string paymentDate, string loanId, string paymentId) {
+    this->amount = amount;
+    this->paymentDate = paymentDate;
+    this->loanId = loanId;
+    this->paymentId = paymentId;
 }
 
 double Payment::getAmount() const {

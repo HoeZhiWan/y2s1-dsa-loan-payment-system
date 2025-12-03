@@ -43,7 +43,7 @@ void FileHandling::saveUsers(const string& filename, const vector<User>& users) 
              << user.getName() << ","
              << user.getEmail() << ","
              << user.getPassword() << ","
-             << user.getRole() << "\n";
+             << (user.getRole() == Role::ADMIN ? "ADMIN" : "BORROWER") << "\n";
     }
     
     file.close();
@@ -110,16 +110,17 @@ void FileHandling::loadPayments(const string& filename, vector<Payment>& payment
     
     while (getline(file, line)) {
         stringstream ss(line);
-        string loanId, date;
+        string paymentId, loanId, date;
         double amount;
         
         string temp;
+        getline(ss, paymentId, ',');
         getline(ss, loanId, ',');
         getline(ss, date, ',');
         getline(ss, temp, ',');
         amount = stod(temp);
         
-        payments.push_back(Payment(amount, date, loanId));
+        payments.push_back(Payment(amount, date, loanId, paymentId));
     }
     
     file.close();
@@ -132,7 +133,8 @@ void FileHandling::savePayments(const string& filename, const vector<Payment>& p
     }
     
     for (const auto& payment : payments) {
-        file << payment.getLoanId() << ","
+        file << payment.getPaymentId() << ","
+             << payment.getLoanId() << ","
              << payment.getPaymentDate() << ","
              << payment.getAmount() << "\n";
     }

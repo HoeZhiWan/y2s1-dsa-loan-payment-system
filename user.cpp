@@ -2,9 +2,12 @@
 
 using namespace std;
 
-User::User(string userId, string name, string email, string password, Role role)
-    : userId(userId), name(name), email(email), password(password), role(role)
-{
+User::User(string userId, string name, string email, string password, Role role) {
+    this->userId = userId;
+    this->name = name;
+    this->email = email;
+    this->password = password;
+    this->role = role;
 }
 
 string User::getUserId() const {

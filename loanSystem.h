@@ -31,11 +31,16 @@ public:
     void makePayment(User* currentUser);
     void viewPaymentHistory(const string& filterUserId = "");
     void viewUpcomingPayments(const string& filterUserId = "");
-    void administerUsers();
+    void viewLoans(const string& filterUserId = "");
+    void viewUsers();
     void manageUsers();
 
     // Login
     User* login(const string& userId, const string& password);
+
+    // Handle Data
+    void loadData();
+    void saveData();
 };
 
 #endif

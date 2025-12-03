@@ -128,14 +128,14 @@ Payment SearchNSort::searchPaymentByLoanID(const string& loanId, const vector<Pa
     for (const auto& p : payments) {
         if (p.getLoanId() == loanId) return p;
     }
-    return Payment(0, "", "");
+    return Payment(0, "", "", "");
 }
 
 Payment SearchNSort::searchPaymentByDate(const string& date, const vector<Payment>& payments) {
     for (const auto& p : payments) {
         if (p.getPaymentDate() == date) return p;
     }
-    return Payment(0, "", "");
+    return Payment(0, "", "", "");
 }
 
 vector<Payment> SearchNSort::filterPaymentsByAmountRange(double min, double max, const vector<Payment>& payments) {
@@ -213,7 +213,7 @@ User SearchNSort::searchUserByEmail(const string& email, const vector<User>& use
     return User("", "", "", "", Role::BORROWER);
 }
 
-vector<User> SearchNSort::filterUsersByRole(const string& role, const vector<User>& users) {
+vector<User> SearchNSort::filterUsersByRole(const Role& role, const vector<User>& users) {
     vector<User> result;
     for (const auto& u : users) {
         if (u.getRole() == role) result.push_back(u);

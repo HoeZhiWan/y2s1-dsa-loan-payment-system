@@ -83,7 +83,7 @@ public:
     // User Search & Sort
     static User searchUserByID(const string& userId, const vector<User>& users);
     static User searchUserByEmail(const string& email, const vector<User>& users);
-    static vector<User> filterUsersByRole(const string& role, const vector<User>& users);
+    static vector<User> filterUsersByRole(const Role& role, const vector<User>& users);
     static void sortUsersByName(vector<User>& users);
     static void sortUsersByRole(vector<User>& users);
     static void sortUsersByEmail(vector<User>& users);

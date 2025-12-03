@@ -5,9 +5,13 @@
 
 using namespace std;
 
-Loan::Loan(double principal, double interestRate, int termYears, string userId, string loanId)
-    : principal(principal), interestRate(interestRate), termYears(termYears), userId(userId), loanId(loanId)
-{
+Loan::Loan(double principal, double interestRate, int termYears, string userId, string loanId) {
+    this->principal = principal;
+    this->interestRate = interestRate;
+    this->termYears = termYears;
+    this->userId = userId;
+    this->loanId = loanId;
+    
     outstandingBalance = principal;
     
     // Get current date

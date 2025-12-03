@@ -47,11 +47,7 @@ void LoanSystem::createLoan()
             {
                 maxId = currentId;
             }
-        }
-        catch (...)
-        {
-            // Ignore malformed loan IDs
-        }
+        } catch (...) {}
     }
     int next = maxId + 1;
     loanId = string("L") + (next < 10 ? "00" : (next < 100 ? "0" : "")) + to_string(next);
@@ -150,7 +146,19 @@ void LoanSystem::makePayment(User *currentUser)
     sprintf(buffer, "%04d-%02d-%02d", 1900 + ltm->tm_year, 1 + ltm->tm_mon, ltm->tm_mday);
     date = string(buffer);
 
-    Payment newPayment(amount, date, loanId);
+    int maxId = 0;
+    for (const auto &p : payments)
+    {
+        string numPart = p.getPaymentId().substr(1); 
+        try {
+            int currentId = stoi(numPart);
+            if (currentId > maxId) maxId = currentId;
+        } catch (...) {}
+    }
+    int next = maxId + 1;
+    string newPaymentId = string("P") + (next < 10 ? "00" : (next < 100 ? "0" : "")) + to_string(next);
+
+    Payment newPayment(amount, date, loanId, newPaymentId);
     payments.push_back(newPayment);
 
     cout << "\nPayment recorded successfully!\n";
@@ -243,7 +251,7 @@ void LoanSystem::viewUpcomingPayments(const string& filterUserId)
     }
 }
 
-void LoanSystem::administerUsers()
+void LoanSystem::viewUsers()
 {
     cout << "\n--- View Users ---\n";
     if (users.empty())
@@ -364,20 +372,89 @@ void LoanSystem::manageUsers()
     }
 }
 
-void LoanSystem::menuLoop()
-{
-    int choice;
+void LoanSystem::viewLoans(const string& filterUserId) {
+    cout << "\n--- View Loans ---\n";
 
+    vector<Loan> filteredLoans;
+
+    if (filterUserId.empty()) {
+        filteredLoans = loans;
+    } else {
+        filteredLoans = SearchNSort::filterLoansByUserID(filterUserId, loans);
+    }
+
+    if (filteredLoans.empty())
+    {
+        cout << "No loans in the system.\n";
+        return;
+    }
+
+    cout << "Options: (S)ort by ID, (F)ilter by UserID, (V)iew All: ";
+    char opt;
+    cin >> opt;
+    if (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        opt = 'V';
+    }
+
+    vector<Loan> displayLoans = filteredLoans;
+
+    if (opt == 'S' || opt == 's')
+    {
+        SearchNSort::sortLoansByLoanID(displayLoans);
+    }
+    else if (opt == 'F' || opt == 'f')
+    {
+        string uid;
+        cout << "Enter User ID: ";
+        cin >> uid;
+        displayLoans = SearchNSort::filterLoansByUserID(uid, loans);
+    }
+
+    cout << left << setw(10) << "Loan ID"
+         << setw(10) << "User ID"
+         << setw(15) << "Principal"
+         << setw(10) << "Rate(%)"
+         << setw(10) << "Term(Y)"
+         << setw(15) << "Monthly" << "\n";
+    cout << string(70, '-') << "\n";
+
+    for (const auto &loan : displayLoans)
+    {
+        cout << left << setw(10) << loan.getLoanId()
+             << setw(10) << loan.getUserId()
+             << "RM " << setw(13) << fixed << setprecision(2) << loan.getPrincipal()
+             << setw(10) << loan.getInterestRate()
+             << setw(10) << loan.getTermYears()
+             << "RM " << setw(13) << loan.calculateMonthlyPayment() << "\n";
+    }
+}
+
+void LoanSystem::loadData() {
     FileHandling::loadUsers("data/users.txt", users);
     FileHandling::loadLoans("data/loans.txt", loans);
     FileHandling::loadPayments("data/payments.txt", payments);
 
-    if (users.empty())
-    {
+    if (users.empty()) {
         users.push_back(User("U001", "Wei Gang", "weigang@example.com", "pass123", Role::BORROWER));
         users.push_back(User("U002", "Wei Jun", "weijun@example.com", "pass456", Role::ADMIN));
         FileHandling::saveUsers("data/users.txt", users);
     }
+}
+
+void LoanSystem::saveData() {
+    FileHandling::saveUsers("data/users.txt", users);
+    FileHandling::saveLoans("data/loans.txt", loans);
+    FileHandling::savePayments("data/payments.txt", payments);
+}
+
+void LoanSystem::menuLoop()
+{
+    int choice;
+
+    loadData();
 
     while (true)
     {
@@ -423,33 +500,7 @@ void LoanSystem::menuLoop()
 
                     if (choice == 1)
                     {
-                        cout << "\n--- My Loans ---\n";
-                        vector<Loan> myLoans = SearchNSort::filterLoansByUserID(loggedInUser->getUserId(), loans);
-
-                        if (myLoans.empty())
-                        {
-                            cout << "No loans found.\n";
-                        }
-                        else
-                        {
-                            cout << left << setw(10) << "Loan ID"
-                                 << setw(15) << "Principal"
-                                 << setw(10) << "Rate(%)"
-                                 << setw(10) << "Term(Y)"
-                                 << setw(15) << "Monthly"
-                                 << setw(15) << "Balance" << "\n";
-                            cout << string(75, '-') << "\n";
-
-                            for (const auto &loan : myLoans)
-                            {
-                                cout << left << setw(10) << loan.getLoanId()
-                                     << "RM " << setw(13) << fixed << setprecision(2) << loan.getPrincipal()
-                                     << setw(10) << loan.getInterestRate()
-                                     << setw(10) << loan.getTermYears()
-                                     << "RM " << setw(13) << loan.calculateMonthlyPayment()
-                                     << "RM " << loan.calculateOutstandingBalance(payments) << "\n";
-                            }
-                        }
+                        viewLoans(loggedInUser->getUserId());
                     }
                     else if (choice == 2)
                     {
@@ -489,59 +540,11 @@ void LoanSystem::menuLoop()
 
                     if (choice == 1)
                     {
-                        cout << "\n--- All Loans ---\n";
-                        if (loans.empty())
-                        {
-                            cout << "No loans in the system.\n";
-                        }
-                        else
-                        {
-                            cout << "Options: (S)ort by ID, (F)ilter by UserID, (V)iew All: ";
-                            char opt;
-                            cin >> opt;
-                            if (cin.fail())
-                            {
-                                cin.clear();
-                                cin.ignore(1000, '\n');
-                                opt = 'V';
-                            }
-
-                            vector<Loan> displayLoans = loans;
-
-                            if (opt == 'S' || opt == 's')
-                            {
-                                SearchNSort::sortLoansByLoanID(displayLoans);
-                            }
-                            else if (opt == 'F' || opt == 'f')
-                            {
-                                string uid;
-                                cout << "Enter User ID: ";
-                                cin >> uid;
-                                displayLoans = SearchNSort::filterLoansByUserID(uid, loans);
-                            }
-
-                            cout << left << setw(10) << "Loan ID"
-                                 << setw(10) << "User ID"
-                                 << setw(15) << "Principal"
-                                 << setw(10) << "Rate(%)"
-                                 << setw(10) << "Term(Y)"
-                                 << setw(15) << "Monthly" << "\n";
-                            cout << string(70, '-') << "\n";
-
-                            for (const auto &loan : displayLoans)
-                            {
-                                cout << left << setw(10) << loan.getLoanId()
-                                     << setw(10) << loan.getUserId()
-                                     << "RM " << setw(13) << fixed << setprecision(2) << loan.getPrincipal()
-                                     << setw(10) << loan.getInterestRate()
-                                     << setw(10) << loan.getTermYears()
-                                     << "RM " << loan.calculateMonthlyPayment() << "\n";
-                            }
-                        }
+                        viewLoans("");
                     }
                     else if (choice == 2)
                     {
-                        administerUsers();
+                        viewUsers();
                     }
                     else if (choice == 3)
                     {
@@ -570,6 +573,7 @@ void LoanSystem::menuLoop()
         else if (choice == 2)
         {
             cout << "\nThank you for using the Loan Management System!\n";
+            saveData();
             break;
         }
         else
