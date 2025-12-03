@@ -14,7 +14,8 @@ private:
     double principal;                   // The amount of the loan
     double interestRate;                // Annual interest rate
     int termYears;                      // Term of the loan in years
-    vector<Payment> paymentSchedule;    // Payment schedule for the loan
+    double outstandingBalance;          // Current outstanding balance
+    string date;                        // Date of the loan
     string userId;                      // ID of the user taking the loan
     string loanId;                      // ID of the loan (generated)
 
@@ -24,7 +25,7 @@ public:
     double calculateMonthlyPayment() const;
     double calculateTotalPayment() const;
     double calculateTotalInterest() const;
-    double calculateOutstandingBalance(int paymentsMade) const;
+    double calculateOutstandingBalance(const vector<Payment>& payments) const;
     
     double getPrincipal() const;
     double getInterestRate() const;
@@ -32,6 +33,7 @@ public:
     vector<Payment> getPaymentSchedule() const;
     string getUserId() const;
     string getLoanId() const;
+    string getDate() const;
 };
 
 #endif

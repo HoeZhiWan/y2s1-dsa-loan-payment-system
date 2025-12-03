@@ -28,11 +28,12 @@ public:
 
     // Functions
     void createLoan();
-    void makePayment();
-    void viewPaymentHistory();
+    void makePayment(User* currentUser);
+    void viewPaymentHistory(const string& filterUserId = "");
     void viewUpcomingPayments();
     void approveLoan();
     void administerUsers();
+    void manageUsers();
 
     // Login
     User* login(const string& userId, const string& password);

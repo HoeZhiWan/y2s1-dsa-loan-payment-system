@@ -1,0 +1,8 @@
+U001,Wei Gang,weigang@mail.com,pass123,BORROWER
+U002,Tony ,tony@mail.com,pass123,ADMIN
+U003,Wei Jun,weijun@mail.com,pass123,ADMIN
+U004,Bob Wilson,bob@mail.com,pass123,BORROWER
+U005,Aisha Rahman,aisha.rahman@mail.com,pass123,BORROWER
+U006,Chen Li,chen.li@mail.com,pass123,BORROWER
+U007,Amir Khan,amir.khan@mail.com,pass123,BORROWER
+U008,Sara Lee,sara.lee@mail.com,pass123,ADMIN
