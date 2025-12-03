@@ -30,8 +30,7 @@ public:
     void createLoan();
     void makePayment(User* currentUser);
     void viewPaymentHistory(const string& filterUserId = "");
-    void viewUpcomingPayments();
-    void approveLoan();
+    void viewUpcomingPayments(const string& filterUserId = "");
     void administerUsers();
     void manageUsers();
 

@@ -35,7 +35,7 @@ Simple console loan management demo: user authentication, loan creation (admin o
 ## Run
 
 ```powershell
-.\loanSystem.exe
+.\main.exe
 ```
 
 ## Test Login

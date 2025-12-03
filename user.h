@@ -16,21 +16,21 @@ private:
     string userId;          // Unique ID for the user
     string name;            // Name of the user
     string email;           // Email address of the user
-    string passwordHash;    // Hashed password for security
+    string password;        // Password for security
     Role role;              // Role of the user (borrower, admin)
 
 public:
-    User(string userId, string name, string email, string passwordHash, Role role);
+    User(string userId, string name, string email, string password, Role role);
 
     string getUserId() const;
     string getName() const;
     string getEmail() const;
-    string getPasswordHash() const;
+    string getPassword() const;
     string getRole() const;
 
     void setName(const string& name);
     void setEmail(const string& email);
-    void setPasswordHash(const string& passwordHash);
+    void setPassword(const string& password);
     void setRole(const string& role);
 };
 

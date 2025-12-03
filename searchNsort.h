@@ -2,6 +2,7 @@
 #define SEARCHNSORT_H
 
 #include <vector>
+#include <algorithm>
 
 #include "user.h"
 #include "loan.h"
@@ -27,6 +28,31 @@ using namespace std;
 
 class SearchNSort
 {
+private:
+    template <typename T, typename Comparator>
+    static int partition(vector<T>& arr, int low, int high, Comparator comp) {
+        T pivot = arr[high];
+        int i = low - 1;
+        
+        for (int j = low; j < high; j++) {
+            if (comp(arr[j], pivot)) { 
+                i++;
+                swap(arr[i], arr[j]);
+            }
+        }
+        swap(arr[i + 1], arr[high]);
+        return i + 1;
+    }
+
+    template <typename T, typename Comparator>
+    static void quickSortRecursive(vector<T>& arr, int low, int high, Comparator comp) {
+        if (low < high) {
+            int pi = partition(arr, low, high, comp);
+            quickSortRecursive(arr, low, pi - 1, comp);
+            quickSortRecursive(arr, pi + 1, high, comp);
+        }
+    }
+
 public:
     // Loan Search & Sort
     static Loan searchLoanByID(const string& loanId, const vector<Loan>& loans);
