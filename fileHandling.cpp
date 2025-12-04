@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "searchNsort.h"
+
 using namespace std;
 
 void FileHandling::loadUsers(const string& filename, vector<User>& users) {
@@ -26,6 +28,8 @@ void FileHandling::loadUsers(const string& filename, vector<User>& users) {
         Role role = (roleStr == "ADMIN") ? Role::ADMIN : Role::BORROWER;
         users.push_back(User(userId, name, email, passwordHash, role));
     }
+
+    SearchNSort::sortUsersByID(users);
     
     file.close();
 }
@@ -40,8 +44,8 @@ void FileHandling::saveUsers(const string& filename, const vector<User>& users) 
         file << user.getUserId() << ","
              << user.getName() << ","
              << user.getEmail() << ","
-             << user.getPasswordHash() << ","
-             << user.getRole() << "\n";
+             << user.getPassword() << ","
+             << (user.getRole() == Role::ADMIN ? "ADMIN" : "BORROWER") << "\n";
     }
     
     file.close();
@@ -71,9 +75,13 @@ void FileHandling::loadLoans(const string& filename, vector<Loan>& loans) {
         interestRate = stod(temp);
         getline(ss, temp, ',');
         termYears = stoi(temp);
+        string date;
+        getline(ss, date, ',');
         
-        loans.push_back(Loan(principal, interestRate, termYears, userId, loanId));
+        loans.push_back(Loan(principal, interestRate, termYears, userId, loanId, date));
     }
+
+    SearchNSort::sortLoansByLoanID(loans);
     
     file.close();
 }
@@ -89,7 +97,8 @@ void FileHandling::saveLoans(const string& filename, const vector<Loan>& loans) 
              << loan.getUserId() << ","
              << loan.getPrincipal() << ","
              << loan.getInterestRate() << ","
-             << loan.getTermYears() << "\n";
+             << loan.getTermYears() << ","
+             << loan.getDate() << "\n";
     }
     
     file.close();
@@ -106,17 +115,20 @@ void FileHandling::loadPayments(const string& filename, vector<Payment>& payment
     
     while (getline(file, line)) {
         stringstream ss(line);
-        string loanId, date;
+        string paymentId, loanId, date;
         double amount;
         
         string temp;
+        getline(ss, paymentId, ',');
         getline(ss, loanId, ',');
         getline(ss, date, ',');
         getline(ss, temp, ',');
         amount = stod(temp);
         
-        payments.push_back(Payment(amount, date, loanId));
+        payments.push_back(Payment(amount, date, loanId, paymentId));
     }
+
+    SearchNSort::sortPaymentsByPaymentID(payments);
     
     file.close();
 }
@@ -128,7 +140,8 @@ void FileHandling::savePayments(const string& filename, const vector<Payment>& p
     }
     
     for (const auto& payment : payments) {
-        file << payment.getLoanId() << ","
+        file << payment.getPaymentId() << ","
+             << payment.getLoanId() << ","
              << payment.getPaymentDate() << ","
              << payment.getAmount() << "\n";
     }

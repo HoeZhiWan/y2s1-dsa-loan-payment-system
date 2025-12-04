@@ -14,7 +14,7 @@ private:
     string paymentId;      // ID of the payment (generated)
 
 public:
-    Payment(double amount, string paymentDate, string loanId);
+    Payment(double amount, string paymentDate, string loanId, string paymentId);
 
     double getAmount() const;
     string getPaymentDate() const;

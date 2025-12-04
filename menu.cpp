@@ -20,7 +20,8 @@ void Menu::displayBorrowerMenu() {
     cout << "1. View My Loans\n";
     cout << "2. Make Payment\n";
     cout << "3. View Payment History\n";
-    cout << "4. Logout\n";
+    cout << "4. View Upcoming Payments\n";
+    cout << "5. Logout\n";
     cout << "=================================\n";
     cout << "Enter your choice: ";
 }
