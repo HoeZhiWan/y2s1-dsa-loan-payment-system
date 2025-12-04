@@ -1,25 +1,18 @@
 #include "loan.h"
 #include <iostream>
 #include <cmath>
-#include <ctime>
 
 using namespace std;
 
-Loan::Loan(double principal, double interestRate, int termYears, string userId, string loanId) {
+Loan::Loan(double principal, double interestRate, int termYears, string userId, string loanId, string date) {
     this->principal = principal;
     this->interestRate = interestRate;
     this->termYears = termYears;
     this->userId = userId;
     this->loanId = loanId;
-    
+    this->date = date;
+
     outstandingBalance = principal;
-    
-    // Get current date
-    time_t now = time(0);
-    tm* ltm = localtime(&now);
-    char buffer[11];
-    sprintf(buffer, "%04d-%02d-%02d", 1900 + ltm->tm_year, 1 + ltm->tm_mon, ltm->tm_mday);
-    date = string(buffer);
 }
 
 double Loan::calculateMonthlyPayment() const {

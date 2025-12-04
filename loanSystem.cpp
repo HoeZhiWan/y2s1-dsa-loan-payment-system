@@ -1,9 +1,13 @@
 #include "loanSystem.h"
+#include "fileHandling.h"
+#include "menu.h"
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <limits>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
 
@@ -86,7 +90,13 @@ void LoanSystem::createLoan()
         return;
     }
 
-    Loan newLoan(principal, interestRate, termYears, userId, loanId);
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    char buffer[11];
+    sprintf(buffer, "%04d-%02d-%02d", 1900 + ltm->tm_year, 1 + ltm->tm_mon, ltm->tm_mday);
+    string date = string(buffer);
+
+    Loan newLoan(principal, interestRate, termYears, userId, loanId, date);
     loans.push_back(newLoan);
 
     cout << "\nLoan created successfully!\n";

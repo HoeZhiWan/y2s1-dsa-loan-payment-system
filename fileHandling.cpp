@@ -28,6 +28,8 @@ void FileHandling::loadUsers(const string& filename, vector<User>& users) {
         Role role = (roleStr == "ADMIN") ? Role::ADMIN : Role::BORROWER;
         users.push_back(User(userId, name, email, passwordHash, role));
     }
+
+    SearchNSort::sortUsersByID(users);
     
     file.close();
 }
@@ -73,8 +75,10 @@ void FileHandling::loadLoans(const string& filename, vector<Loan>& loans) {
         interestRate = stod(temp);
         getline(ss, temp, ',');
         termYears = stoi(temp);
+        string date;
+        getline(ss, date, ',');
         
-        loans.push_back(Loan(principal, interestRate, termYears, userId, loanId));
+        loans.push_back(Loan(principal, interestRate, termYears, userId, loanId, date));
     }
 
     SearchNSort::sortLoansByLoanID(loans);
@@ -93,7 +97,8 @@ void FileHandling::saveLoans(const string& filename, const vector<Loan>& loans) 
              << loan.getUserId() << ","
              << loan.getPrincipal() << ","
              << loan.getInterestRate() << ","
-             << loan.getTermYears() << "\n";
+             << loan.getTermYears() << ","
+             << loan.getDate() << "\n";
     }
     
     file.close();
@@ -122,6 +127,8 @@ void FileHandling::loadPayments(const string& filename, vector<Payment>& payment
         
         payments.push_back(Payment(amount, date, loanId, paymentId));
     }
+
+    SearchNSort::sortPaymentsByPaymentID(payments);
     
     file.close();
 }

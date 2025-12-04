@@ -13,7 +13,7 @@ Loan SearchNSort::searchLoanByID(const string& loanId, const vector<Loan>& loans
         if (loans[mid].getLoanId() < loanId) left = mid + 1;
         else right = mid - 1;
     }
-    return Loan(0, 0, 0, "", "");
+    return Loan(0, 0, 0, "", "", ""); 
 }
 
 vector<Loan> SearchNSort::filterLoansByUserID(const string& userId, const vector<Loan>& loans) {

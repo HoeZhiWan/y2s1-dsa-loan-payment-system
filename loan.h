@@ -20,7 +20,7 @@ private:
     string loanId;                      // ID of the loan (generated)
 
 public:
-    Loan(double principal, double interestRate, int termYears, string userId, string loanId);
+    Loan(double principal, double interestRate, int termYears, string userId, string loanId, string date);
 
     double calculateMonthlyPayment() const;
     double calculateTotalPayment() const;
