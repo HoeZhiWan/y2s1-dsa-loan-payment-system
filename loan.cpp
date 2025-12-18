@@ -1,4 +1,5 @@
 #include "loan.h"
+#include "LinkedList.h"
 #include <iostream>
 #include <cmath>
 
@@ -34,7 +35,7 @@ double Loan::calculateTotalInterest() const {
     return calculateTotalPayment() - principal;
 }
 
-double Loan::calculateOutstandingBalance(const vector<Payment>& payments) const {
+double Loan::calculateOutstandingBalance(const LinkedList<Payment>& payments) const {
     double totalPaid = 0.0;
     for (const auto& payment : payments) {
         if (payment.getLoanId() == loanId) {

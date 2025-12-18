@@ -1,12 +1,16 @@
-#include "fileHandling.h"
 #include <fstream>
 #include <sstream>
 
+#include "fileHandling.h"
 #include "searchNsort.h"
+#include "user.h"
+#include "loan.h"
+#include "payment.h"
+#include "LinkedList.h"
 
 using namespace std;
 
-void FileHandling::loadUsers(const string& filename, vector<User>& users) {
+void FileHandling::loadUsers(const string& filename, LinkedList<User>& users) {
     ifstream file(filename);
     if (!file.is_open()) {
         return;
@@ -17,16 +21,16 @@ void FileHandling::loadUsers(const string& filename, vector<User>& users) {
     
     while (getline(file, line)) {
         stringstream ss(line);
-        string userId, name, email, passwordHash, roleStr;
+        string userId, name, email, password, roleStr;
         
         getline(ss, userId, ',');
         getline(ss, name, ',');
         getline(ss, email, ',');
-        getline(ss, passwordHash, ',');
+        getline(ss, password, ',');
         getline(ss, roleStr, ',');
         
         Role role = (roleStr == "ADMIN") ? Role::ADMIN : Role::BORROWER;
-        users.push_back(User(userId, name, email, passwordHash, role));
+        users.push_back(User(userId, name, email, password, role));
     }
 
     SearchNSort::sortUsersByID(users);
@@ -34,7 +38,7 @@ void FileHandling::loadUsers(const string& filename, vector<User>& users) {
     file.close();
 }
 
-void FileHandling::saveUsers(const string& filename, const vector<User>& users) {
+void FileHandling::saveUsers(const string& filename, const LinkedList<User>& users) {
     ofstream file(filename);
     if (!file.is_open()) {
         return;
@@ -51,7 +55,7 @@ void FileHandling::saveUsers(const string& filename, const vector<User>& users) 
     file.close();
 }
 
-void FileHandling::loadLoans(const string& filename, vector<Loan>& loans) {
+void FileHandling::loadLoans(const string& filename, LinkedList<Loan>& loans) {
     ifstream file(filename);
     if (!file.is_open()) {
         return;
@@ -86,7 +90,7 @@ void FileHandling::loadLoans(const string& filename, vector<Loan>& loans) {
     file.close();
 }
 
-void FileHandling::saveLoans(const string& filename, const vector<Loan>& loans) {
+void FileHandling::saveLoans(const string& filename, const LinkedList<Loan>& loans) {
     ofstream file(filename);
     if (!file.is_open()) {
         return;
@@ -104,7 +108,7 @@ void FileHandling::saveLoans(const string& filename, const vector<Loan>& loans) 
     file.close();
 }
 
-void FileHandling::loadPayments(const string& filename, vector<Payment>& payments) {
+void FileHandling::loadPayments(const string& filename, LinkedList<Payment>& payments) {
     ifstream file(filename);
     if (!file.is_open()) {
         return;
@@ -133,7 +137,7 @@ void FileHandling::loadPayments(const string& filename, vector<Payment>& payment
     file.close();
 }
 
-void FileHandling::savePayments(const string& filename, const vector<Payment>& payments) {
+void FileHandling::savePayments(const string& filename, const LinkedList<Payment>& payments) {
     ofstream file(filename);
     if (!file.is_open()) {
         return;

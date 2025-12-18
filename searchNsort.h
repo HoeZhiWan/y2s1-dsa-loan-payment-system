@@ -1,12 +1,12 @@
 #ifndef SEARCHNSORT_H
 #define SEARCHNSORT_H
 
-#include <vector>
 #include <algorithm>
 
 #include "user.h"
 #include "loan.h"
 #include "payment.h"
+#include "LinkedList.h"
 
 using namespace std;
 
@@ -30,7 +30,7 @@ class SearchNSort
 {
 private:
     template <typename T, typename Comparator>
-    static int partition(vector<T>& arr, int low, int high, Comparator comp) {
+    static int partition(LinkedList<T>& arr, int low, int high, Comparator comp) {
         T pivot = arr[high];
         int i = low - 1;
         
@@ -45,7 +45,7 @@ private:
     }
 
     template <typename T, typename Comparator>
-    static void quickSortRecursive(vector<T>& arr, int low, int high, Comparator comp) {
+    static void quickSortRecursive(LinkedList<T>& arr, int low, int high, Comparator comp) {
         if (low < high) {
             int pi = partition(arr, low, high, comp);
             quickSortRecursive(arr, low, pi - 1, comp);
@@ -55,39 +55,39 @@ private:
 
 public:
     // Loan Search & Sort
-    static Loan searchLoanByID(const string& loanId, const vector<Loan>& loans);
-    static vector<Loan> filterLoansByUserID(const string& userId, const vector<Loan>& loans);
-    static vector<Loan> filterLoansByInterestRate(double minRate, double maxRate, const vector<Loan>& loans);
-    static vector<Loan> filterLoansByPrincipal(double minPrincipal, double maxPrincipal, const vector<Loan>& loans);
-    static vector<Loan> filterLoansByOutstandingBalance(double minAmount, double maxAmount, const vector<Loan>& loans);
-    static vector<Loan> filterLoansByTermYears(int minYears, int maxYears, const vector<Loan>& loans);
-    static vector<Loan> filterLoansByDateRange(const string& startDate, const string& endDate, const vector<Loan>& loans);
-    static void sortLoansByPrincipal(vector<Loan>& loans);
-    static void sortLoansByInterestRate(vector<Loan>& loans);
-    static void sortLoansByOutstandingBalance(vector<Loan>& loans);
-    static void sortLoansByTermYears(vector<Loan>& loans);
-    static void sortLoansByDate(vector<Loan>& loans);
-    static void sortLoansByLoanID(vector<Loan>& loans);
-    static void sortLoansByUserID(vector<Loan>& loans);
+    static Loan searchLoanByID(const string& loanId, const LinkedList<Loan>& loans);
+    static LinkedList<Loan> filterLoansByUserID(const string& userId, const LinkedList<Loan>& loans);
+    static LinkedList<Loan> filterLoansByInterestRate(double minRate, double maxRate, const LinkedList<Loan>& loans);
+    static LinkedList<Loan> filterLoansByPrincipal(double minPrincipal, double maxPrincipal, const LinkedList<Loan>& loans);
+    static LinkedList<Loan> filterLoansByOutstandingBalance(double minAmount, double maxAmount, const LinkedList<Loan>& loans);
+    static LinkedList<Loan> filterLoansByTermYears(int minYears, int maxYears, const LinkedList<Loan>& loans);
+    static LinkedList<Loan> filterLoansByDateRange(const string& startDate, const string& endDate, const LinkedList<Loan>& loans);
+    static void sortLoansByPrincipal(LinkedList<Loan>& loans);
+    static void sortLoansByInterestRate(LinkedList<Loan>& loans);
+    static void sortLoansByOutstandingBalance(LinkedList<Loan>& loans);
+    static void sortLoansByTermYears(LinkedList<Loan>& loans);
+    static void sortLoansByDate(LinkedList<Loan>& loans);
+    static void sortLoansByLoanID(LinkedList<Loan>& loans);
+    static void sortLoansByUserID(LinkedList<Loan>& loans);
 
     // Payment Search & Sort
-    static Payment searchPaymentByLoanID(const string& loanId, const vector<Payment>& payments);
-    static Payment searchPaymentByDate(const string& date, const vector<Payment>& payments);
-    static vector<Payment> filterPaymentsByAmountRange(double minAmount, double maxAmount, const vector<Payment>& payments);
-    static vector<Payment> filterPaymentsByUserID(const string& userId, const vector<Payment>& payments, const vector<Loan>& loans);
-    static void sortPaymentsByPaymentID(vector<Payment>& payments);
-    static void sortPaymentsByLoanID(vector<Payment>& payments);
-    static void sortPaymentsByDate(vector<Payment>& payments);
-    static void sortPaymentsByAmount(vector<Payment>& payments);
+    static Payment searchPaymentByLoanID(const string& loanId, const LinkedList<Payment>& payments);
+    static Payment searchPaymentByDate(const string& date, const LinkedList<Payment>& payments);
+    static LinkedList<Payment> filterPaymentsByAmountRange(double minAmount, double maxAmount, const LinkedList<Payment>& payments);
+    static LinkedList<Payment> filterPaymentsByUserID(const string& userId, const LinkedList<Payment>& payments, const LinkedList<Loan>& loans);
+    static void sortPaymentsByPaymentID(LinkedList<Payment>& payments);
+    static void sortPaymentsByLoanID(LinkedList<Payment>& payments);
+    static void sortPaymentsByDate(LinkedList<Payment>& payments);
+    static void sortPaymentsByAmount(LinkedList<Payment>& payments);
 
     // User Search & Sort
-    static User searchUserByID(const string& userId, const vector<User>& users);
-    static User searchUserByEmail(const string& email, const vector<User>& users);
-    static vector<User> filterUsersByRole(const Role& role, const vector<User>& users);
-    static void sortUsersByName(vector<User>& users);
-    static void sortUsersByRole(vector<User>& users);
-    static void sortUsersByEmail(vector<User>& users);
-    static void sortUsersByID(vector<User>& users);
+    static User searchUserByID(const string& userId, const LinkedList<User>& users);
+    static User searchUserByEmail(const string& email, const LinkedList<User>& users);
+    static LinkedList<User> filterUsersByRole(const Role& role, const LinkedList<User>& users);
+    static void sortUsersByName(LinkedList<User>& users);
+    static void sortUsersByRole(LinkedList<User>& users);
+    static void sortUsersByEmail(LinkedList<User>& users);
+    static void sortUsersByID(LinkedList<User>& users);
 };
 
 #endif

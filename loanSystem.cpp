@@ -1,6 +1,11 @@
 #include "loanSystem.h"
 #include "fileHandling.h"
 #include "menu.h"
+#include "searchNsort.h"
+#include "user.h"
+#include "loan.h"
+#include "payment.h"
+#include "LinkedList.h"
 
 #include <iostream>
 #include <iomanip>
@@ -61,7 +66,7 @@ void LoanSystem::createLoan()
     cin >> userId;
 
     bool userExists = false;
-    for (const auto &user : users)
+    for (const auto &user : users) 
     {
         if (user.getUserId() == userId)
         {
@@ -179,7 +184,7 @@ void LoanSystem::makePayment(User *currentUser)
 void LoanSystem::viewPaymentHistory(const string &filterUserId)
 {
     cout << "\n--- Payment History ---\n";
-    vector<Payment> filteredPayments;
+    LinkedList<Payment> filteredPayments;
 
     if (filterUserId.empty())
     {
@@ -280,7 +285,7 @@ void LoanSystem::viewUsers()
         opt = 'V';
     }
 
-    vector<User> displayUsers = users;
+    LinkedList<User> displayUsers = users;
 
     if (opt == 'S' || opt == 's')
     {
@@ -367,11 +372,18 @@ void LoanSystem::manageUsers()
         string delId;
         cout << "Enter User ID to delete: ";
         cin >> delId;
-        auto it = remove_if(users.begin(), users.end(), [&](const User &u)
-                            { return u.getUserId() == delId; });
-        if (it != users.end())
+        
+        int indexToDelete = -1;
+        for (int i = 0; i < users.size(); ++i) {
+            if (users[i].getUserId() == delId) {
+                indexToDelete = i;
+                break;
+            }
+        }
+
+        if (indexToDelete != -1)
         {
-            users.erase(it, users.end());
+            users.remove(indexToDelete);
             FileHandling::saveUsers("data/users.txt", users);
             cout << "Deleted user: " << delId << "\n";
         }
@@ -385,7 +397,7 @@ void LoanSystem::manageUsers()
 void LoanSystem::viewLoans(const string& filterUserId) {
     cout << "\n--- View Loans ---\n";
 
-    vector<Loan> filteredLoans;
+    LinkedList<Loan> filteredLoans;
 
     if (filterUserId.empty()) {
         filteredLoans = loans;
@@ -409,7 +421,7 @@ void LoanSystem::viewLoans(const string& filterUserId) {
         opt = 'V';
     }
 
-    vector<Loan> displayLoans = filteredLoans;
+    LinkedList<Loan> displayLoans = filteredLoans;
 
     if (opt == 'S' || opt == 's')
     {

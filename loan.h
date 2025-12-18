@@ -1,10 +1,10 @@
 #ifndef LOAN_H
 #define LOAN_H
 
+#include "LinkedList.h"
 #include "payment.h"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -25,12 +25,11 @@ public:
     double calculateMonthlyPayment() const;
     double calculateTotalPayment() const;
     double calculateTotalInterest() const;
-    double calculateOutstandingBalance(const vector<Payment>& payments) const;
+    double calculateOutstandingBalance(const LinkedList<Payment>& payments) const;
     
     double getPrincipal() const;
     double getInterestRate() const;
     int getTermYears() const;
-    vector<Payment> getPaymentSchedule() const;
     string getUserId() const;
     string getLoanId() const;
     string getDate() const;

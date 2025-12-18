@@ -8,16 +8,16 @@
 #include "fileHandling.h"
 #include "menu.h"
 
-#include <vector>
+#include "LinkedList.h"
 
 using namespace std;
 
 class LoanSystem
 {
 private:
-    vector<User> users;
-    vector<Loan> loans;
-    vector<Payment> payments;
+    LinkedList<User> users;
+    LinkedList<Loan> loans;
+    LinkedList<Payment> payments;
 
 public:
     static void initialize();
