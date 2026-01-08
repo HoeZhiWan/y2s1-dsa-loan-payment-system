@@ -28,14 +28,17 @@ void Menu::displayBorrowerMenu() {
 
 void Menu::displayAdminMenu() {
     cout << "\n=================================\n";
-    cout << "       Admin Menu\n";
+    cout << "         Admin Menu\n";
     cout << "=================================\n";
     cout << "1. View All Loans\n";
     cout << "2. View/Search/Sort Users\n";
     cout << "3. View/Search/Sort Payments\n";
     cout << "4. Create New Loan\n";
     cout << "5. Manage Users\n";
-    cout << "6. Logout\n";
+    cout << "6. View Payment Queue (Front/Rear)\n";
+    cout << "7. Process Next Payment in Queue\n";
+    cout << "8. Process ALL Payments in Queue\n";
+    cout << "9. Logout\n";
     cout << "=================================\n";
     cout << "Enter your choice: ";
 }

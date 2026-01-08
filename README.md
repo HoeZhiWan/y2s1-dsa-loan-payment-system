@@ -32,6 +32,13 @@ Simple console loan management demo: user authentication, loan creation (admin o
 - Sorting payments by **Payment ID**, **Loan ID**, **Date**, and **Amount**.
 - Sorting users by **Name**, **Role**, **Email**, and **User ID**.
 
+### Queue (Payment Processing Queue)
+- Enqueuing borrower-submitted **Payment** objects into a FIFO processing queue.
+- Dequeuing pending **Payments** for admin processing in **First-In-First-Out (FIFO)** order.
+- Applying dequeued payments to update the corresponding **Loan** outstanding balances and persist them to history.
+- Inspecting the **front** and **rear** of the payment queue to view the oldest and newest pending payments.
+
+
 ## Run
 
 ```powershell

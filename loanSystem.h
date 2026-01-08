@@ -9,6 +9,7 @@
 #include "menu.h"
 
 #include "LinkedList.h"
+#include "paymentQueue.h"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ private:
     LinkedList<User> users;
     LinkedList<Loan> loans;
     LinkedList<Payment> payments;
+    PaymentQueue paymentQueue;
+    vector<Payment> getPaymentsForLoan(const string& loanId) const;
 
 public:
     static void initialize();
@@ -41,6 +44,12 @@ public:
     // Handle Data
     void loadData();
     void saveData();
+
+    //Queue payments for processing
+    void enqueuePayment(const Payment& payment);  // borrower enQueue
+    void processNextPayment();                    // admin deQueue one
+    void processAllPayments();                    // admin deQueue all
+    void displayPendingPayments() const;          // (optional) print queue
 };
 
 #endif

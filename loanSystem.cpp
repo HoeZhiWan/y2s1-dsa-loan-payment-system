@@ -174,11 +174,9 @@ void LoanSystem::makePayment(User *currentUser)
     string newPaymentId = string("P") + (next < 10 ? "00" : (next < 100 ? "0" : "")) + to_string(next);
 
     Payment newPayment(amount, date, loanId, newPaymentId);
-    payments.push_back(newPayment);
-
-    cout << "\nPayment recorded successfully!\n";
-
-    FileHandling::savePayments("data/payments.txt", payments);
+    enqueuePayment(newPayment);
+    cout << "\nPayment submitted and added to processing queue.\n";
+    cout << "It will be officially recorded after an admin processes the queue.\n";
 }
 
 void LoanSystem::viewPaymentHistory(const string &filterUserId)
@@ -472,6 +470,97 @@ void LoanSystem::saveData() {
     FileHandling::savePayments("data/payments.txt", payments);
 }
 
+vector<Payment> LoanSystem::getPaymentsForLoan(const string& loanId) const
+{
+    vector<Payment> result;
+    for (const auto& p : payments)
+    {
+        if (p.getLoanId() == loanId)
+            result.push_back(p);
+    }
+    return result;
+}
+
+void LoanSystem::enqueuePayment(const Payment& payment)
+{
+    paymentQueue.enqueue(payment);
+    cout << "[Queue] Payment " << payment.getPaymentId()
+         << " for Loan " << payment.getLoanId()
+         << " has been enqueued.\n";
+}
+
+void LoanSystem::displayPendingPayments() const
+{
+    if (paymentQueue.isEmpty())
+    {
+        cout << "\n[Queue] No pending payments in the queue.\n";
+        return;
+    }
+
+    cout << "\n[Queue] Pending payments (showing Front and Rear only):\n";
+
+    try {
+        Payment front = paymentQueue.getFront();
+        Payment rear  = paymentQueue.getRear();
+
+        cout << "  Front -> PaymentID: " << front.getPaymentId()
+             << ", LoanID: "  << front.getLoanId()
+             << ", Amount: RM " << fixed << setprecision(2) << front.getAmount()
+             << ", Date: " << front.getPaymentDate() << '\n';
+
+        cout << "  Rear  -> PaymentID: " << rear.getPaymentId()
+             << ", LoanID: "  << rear.getLoanId()
+             << ", Amount: RM " << fixed << setprecision(2) << rear.getAmount()
+             << ", Date: " << rear.getPaymentDate() << '\n';
+    }
+    catch (const exception&)
+    {
+        cout << "Error reading queue.\n";
+    }
+}
+
+void LoanSystem::processNextPayment()
+{
+    if (paymentQueue.isEmpty())
+    {
+        cout << "\n[Queue] No pending payments to process.\n";
+        return;
+    }
+
+    try {
+        Payment payment = paymentQueue.getFront();
+        paymentQueue.dequeue(payment);
+
+        payments.push_back(payment);
+        FileHandling::savePayments("data/payments.txt", payments);
+
+        cout << "\n[Queue] Processed Payment " << payment.getPaymentId()
+             << " for Loan " << payment.getLoanId()
+             << ", Amount: RM " << fixed << setprecision(2) << payment.getAmount() << '\n';
+    }
+    catch (const exception& e)
+    {
+        cout << "Error processing payment: " << e.what() << '\n';
+    }
+}
+
+void LoanSystem::processAllPayments()
+{
+    if (paymentQueue.isEmpty())
+    {
+        cout << "\n[Queue] No pending payments to process.\n";
+        return;
+    }
+
+    cout << "\n[Queue] Processing ALL pending payments in FIFO order...\n";
+    while (!paymentQueue.isEmpty())
+    {
+        processNextPayment();
+    }
+    cout << "[Queue] All queued payments have been processed.\n";
+}
+
+
 void LoanSystem::menuLoop()
 {
     int choice;
@@ -552,43 +641,58 @@ void LoanSystem::menuLoop()
                 while (true)
                 {
                     Menu::displayAdminMenu();
-                    if (!(cin >> choice))
-                    {
-                        cin.clear();
-                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                        cout << "Invalid input.\n";
-                        continue;
-                    }
+        if (!(cin >> choice))
+        {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input.\n";
+            continue;
+        }
 
-                    if (choice == 1)
-                    {
-                        viewLoans("");
-                    }
-                    else if (choice == 2)
-                    {
-                        viewUsers();
-                    }
-                    else if (choice == 3)
-                    {
-                        viewPaymentHistory("");
-                    }
-                    else if (choice == 4)
-                    {
-                        createLoan();
-                    }
-                    else if (choice == 5)
-                    {
-                        manageUsers();
-                    }
-                    else if (choice == 6)
-                    {
-                        cout << "\nLogging out...\n";
-                        break;
-                    }
-                    else
-                    {
-                        cout << "\nInvalid choice!\n";
-                    }
+        if (choice == 1)
+        {
+            viewLoans("");
+        }
+        else if (choice == 2)
+        {
+            viewUsers();
+        }
+        else if (choice == 3)
+        {
+            viewPaymentHistory("");
+        }
+        else if (choice == 4)
+        {
+            createLoan();
+        }
+        else if (choice == 5)
+        {
+            manageUsers();
+        }
+        else if (choice == 6)
+        {
+            // check queue front / rear
+            displayPendingPayments();
+        }
+        else if (choice == 7)
+        {
+            // process one payment (deQueue 1)
+            processNextPayment();
+        }
+        else if (choice == 8)
+        {
+            // process all payments in queue
+            processAllPayments();
+        }
+        else if (choice == 9)
+        {
+            cout << "\nLogging out...\n";
+            break;
+        }
+        else
+        {
+            cout << "\nInvalid choice!\n";
+        }
                 }
             }
         }
