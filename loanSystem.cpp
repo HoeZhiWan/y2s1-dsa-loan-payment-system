@@ -470,16 +470,20 @@ void LoanSystem::saveData() {
     FileHandling::savePayments("data/payments.txt", payments);
 }
 
-vector<Payment> LoanSystem::getPaymentsForLoan(const string& loanId) const
+LinkedList<Payment> LoanSystem::getPaymentsForLoan(const string& loanId) const
 {
-    vector<Payment> result;
+    LinkedList<Payment> result;
     for (const auto& p : payments)
     {
         if (p.getLoanId() == loanId)
+        {
             result.push_back(p);
+        }
     }
     return result;
 }
+
+
 
 void LoanSystem::enqueuePayment(const Payment& payment)
 {
@@ -528,21 +532,57 @@ void LoanSystem::processNextPayment()
     }
 
     try {
-        Payment payment = paymentQueue.getFront();
-        paymentQueue.dequeue(payment);
+        
+        Payment pending = paymentQueue.getFront();
 
-        payments.push_back(payment);
-        FileHandling::savePayments("data/payments.txt", payments);
+        cout << "\n[Queue] Next pending payment:\n";
+        cout << "  PaymentID: " << pending.getPaymentId() << '\n';
+        cout << "  LoanID   : " << pending.getLoanId()   << '\n';
+        cout << "  Amount   : RM " << fixed << setprecision(2) << pending.getAmount() << '\n';
+        cout << "  Date     : " << pending.getPaymentDate() << '\n';
 
-        cout << "\n[Queue] Processed Payment " << payment.getPaymentId()
-             << " for Loan " << payment.getLoanId()
-             << ", Amount: RM " << fixed << setprecision(2) << payment.getAmount() << '\n';
+        char decision;
+        cout << "\nApprove this payment? (Y/N): ";
+        cin >> decision;
+
+        paymentQueue.dequeue(pending);
+
+        if (decision == 'Y' || decision == 'y')
+        {
+            payments.push_back(pending);
+            FileHandling::savePayments("data/payments.txt", payments);
+
+            cout << "\n[Queue] APPROVED Payment " << pending.getPaymentId()
+                 << " for Loan " << pending.getLoanId()
+                 << ", Amount: RM " << fixed << setprecision(2) << pending.getAmount() << '\n';
+
+            for (auto &loan : loans)
+            {
+                if (loan.getLoanId() == pending.getLoanId())
+                {
+                    LinkedList<Payment> loanPayments = getPaymentsForLoan(loan.getLoanId());
+                    double newOutstanding = loan.calculateOutstandingBalance(loanPayments);
+
+                    cout << "[Queue] New outstanding balance for Loan "
+                         << loan.getLoanId()
+                         << " = RM " << fixed << setprecision(2) << newOutstanding << '\n';
+                    break;
+                }
+            }
+        }
+        else
+        {
+            cout << "\n[Queue] REJECTED Payment " << pending.getPaymentId()
+                 << " for Loan " << pending.getLoanId()
+                 << ". It was removed from the queue and not recorded.\n";
+        }
     }
     catch (const exception& e)
     {
         cout << "Error processing payment: " << e.what() << '\n';
     }
 }
+
 
 void LoanSystem::processAllPayments()
 {
@@ -552,13 +592,47 @@ void LoanSystem::processAllPayments()
         return;
     }
 
+    char decision;
+    cout << "\n[Queue] Process ALL pending payments as APPROVED? (Y/N): ";
+    cin >> decision;
+
+    if (!(decision == 'Y' || decision == 'y'))
+    {
+        cout << "[Queue] Batch processing cancelled.\n";
+        return;
+    }
+
     cout << "\n[Queue] Processing ALL pending payments in FIFO order...\n";
+
     while (!paymentQueue.isEmpty())
     {
-        processNextPayment();
+        Payment p(0.0, "", "", "");  
+        if (!paymentQueue.dequeue(p))
+            break;
+
+        payments.push_back(p);
+
+       
+        for (auto &loan : loans)
+        {
+            if (loan.getLoanId() == p.getLoanId())
+            {
+                LinkedList<Payment> loanPayments = getPaymentsForLoan(loan.getLoanId());
+                double newOutstanding = loan.calculateOutstandingBalance(loanPayments);
+
+                cout << "[Queue] Loan " << loan.getLoanId()
+                     << " new outstanding = RM " << fixed << setprecision(2)
+                     << newOutstanding << '\n';
+                break;
+            }
+        }
     }
-    cout << "[Queue] All queued payments have been processed.\n";
+
+    FileHandling::savePayments("data/payments.txt", payments);
+    cout << "[Queue] All queued payments have been APPROVED and processed.\n";
 }
+
+
 
 
 void LoanSystem::menuLoop()

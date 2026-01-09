@@ -20,7 +20,7 @@ private:
     LinkedList<Loan> loans;
     LinkedList<Payment> payments;
     PaymentQueue paymentQueue;
-    vector<Payment> getPaymentsForLoan(const string& loanId) const;
+    LinkedList<Payment> getPaymentsForLoan(const string& loanId) const;
 
 public:
     static void initialize();
