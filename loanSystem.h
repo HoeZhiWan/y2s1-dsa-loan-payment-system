@@ -9,7 +9,7 @@
 #include "menu.h"
 
 #include "LinkedList.h"
-#include "paymentQueue.h"
+#include "Queue.h"
 
 using namespace std;
 
@@ -19,7 +19,9 @@ private:
     LinkedList<User> users;
     LinkedList<Loan> loans;
     LinkedList<Payment> payments;
-    PaymentQueue paymentQueue;
+    Queue<Payment> paymentQueue;
+    Queue<Loan> loanRequests;
+
     LinkedList<Payment> getPaymentsForLoan(const string& loanId) const;
 
 public:
@@ -30,7 +32,7 @@ public:
     void menuLoop();
 
     // Functions
-    void createLoan();
+    void createLoan(User* currentUser); // Unified function
     void makePayment(User* currentUser);
     void viewPaymentHistory(const string& filterUserId = "");
     void viewUpcomingPayments(const string& filterUserId = "");
@@ -50,6 +52,10 @@ public:
     void processNextPayment();                    // admin deQueue one
     void processAllPayments();                    // admin deQueue all
     void displayPendingPayments() const;          // (optional) print queue
+    
+    // Process Loan Requests
+    void processLoanRequests();                   // admin process loans
+    void displayPendingLoans() const;             // admin view pending loans
 };
 
 #endif

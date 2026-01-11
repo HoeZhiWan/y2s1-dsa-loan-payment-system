@@ -21,7 +21,8 @@ void Menu::displayBorrowerMenu() {
     cout << "2. Make Payment\n";
     cout << "3. View Payment History\n";
     cout << "4. View Upcoming Payments\n";
-    cout << "5. Logout\n";
+    cout << "5. Request a New Loan\n";
+    cout << "6. Logout\n";
     cout << "=================================\n";
     cout << "Enter your choice: ";
 }
@@ -33,12 +34,13 @@ void Menu::displayAdminMenu() {
     cout << "1. View All Loans\n";
     cout << "2. View/Search/Sort Users\n";
     cout << "3. View/Search/Sort Payments\n";
-    cout << "4. Create New Loan\n";
+    cout << "4. Create New Loan (Direct)\n";
     cout << "5. Manage Users\n";
     cout << "6. View Payment Queue (Front/Rear)\n";
     cout << "7. Process Next Payment in Queue\n";
     cout << "8. Process ALL Payments in Queue\n";
-    cout << "9. Logout\n";
+    cout << "9. Process Loan Requests\n";
+    cout << "10. Logout\n";
     cout << "=================================\n";
     cout << "Enter your choice: ";
 }
