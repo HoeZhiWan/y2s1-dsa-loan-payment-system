@@ -1,6 +1,8 @@
 #include "Queue.h"
+
 #include "payment.h"
 #include "loan.h"
+
 #include <stdexcept>
 
 template <typename Type>
@@ -25,7 +27,6 @@ Type Queue<Type>::getFront() const {
 template <typename Type>
 Type Queue<Type>::getRear() const {
     if (isEmpty()) throw std::runtime_error("Queue is empty");
-    // Access the last element
     return list[list.size() - 1];
 }
 
@@ -44,6 +45,5 @@ const LinkedList<Type>& Queue<Type>::getList() const {
     return list;
 }
 
-// Explicit Instantiations
 template class Queue<Payment>;
 template class Queue<Loan>;

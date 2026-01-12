@@ -275,7 +275,7 @@ void LoanSystem::manageUsers()
 
         int maxId = 0;
         for (const auto &user : users) {
-            string numPart = user.getUserId().substr(1); // Remove 'U'
+            string numPart = user.getUserId().substr(1); 
             try {
                 int currentId = stoi(numPart);
                 if (currentId > maxId)
@@ -381,8 +381,6 @@ void LoanSystem::loadData() {
     FileHandling::loadUsers("data/users.txt", users);
     FileHandling::loadLoans("data/loans.txt", loans);
     FileHandling::loadPayments("data/payments.txt", payments);
-    // Note: Pending queues are not currently persisted in files, they are runtime only for now.
-    // If you want to save queues, you'd need separate files for pending_loans.txt etc.
 
     if (users.empty()) {
         users.push_back(User("U001", "Wei Gang", "weigang@example.com", "pass123", Role::BORROWER));
@@ -428,21 +426,19 @@ void LoanSystem::displayPendingPayments() const
         return;
     }
 
-    cout << "\n[Queue] Pending payments (showing Front and Rear only):\n";
+    cout << "\n[Queue] Pending payments (" << paymentQueue.size() << " total):\n";
+    cout << left << setw(10) << "Payment" << setw(10) << "Loan" << setw(15) << "Amount" << setw(15) << "Date" << "\n";
+    cout << string(50, '-') << "\n";
 
     try {
-        Payment front = paymentQueue.getFront();
-        Payment rear  = paymentQueue.getRear();
-
-        cout << "  Front -> PaymentID: " << front.getPaymentId()
-             << ", LoanID: "  << front.getLoanId()
-             << ", Amount: RM " << fixed << setprecision(2) << front.getAmount()
-             << ", Date: " << front.getPaymentDate() << '\n';
-
-        cout << "  Rear  -> PaymentID: " << rear.getPaymentId()
-             << ", LoanID: "  << rear.getLoanId()
-             << ", Amount: RM " << fixed << setprecision(2) << rear.getAmount()
-             << ", Date: " << rear.getPaymentDate() << '\n';
+        const LinkedList<Payment>& list = paymentQueue.getList();
+        for (const auto& p : list)
+        {
+            cout << left << setw(10) << p.getPaymentId()
+                 << setw(10) << p.getLoanId()
+                 << "RM " << setw(12) << fixed << setprecision(2) << p.getAmount()
+                 << setw(15) << p.getPaymentDate() << "\n";
+        }
     }
     catch (const exception&)
     {
@@ -459,108 +455,70 @@ void LoanSystem::processNextPayment()
     }
 
     try {
-        // Peek at the front
-        Payment pending = paymentQueue.getFront();
-
-        cout << "\n[Queue] Next pending payment:\n";
-        cout << "  PaymentID: " << pending.getPaymentId() << '\n';
-        cout << "  LoanID   : " << pending.getLoanId()   << '\n';
-        cout << "  Amount   : RM " << fixed << setprecision(2) << pending.getAmount() << '\n';
-        cout << "  Date     : " << pending.getPaymentDate() << '\n';
-
-        char decision;
-        cout << "\nApprove this payment? (Y/N): ";
-        cin >> decision;
-
-        // Either way, remove it from queue
-        paymentQueue.dequeue(pending);
-
-        if (decision == 'Y' || decision == 'y')
+        while(true)
         {
-            // Add to main list
-            payments.push_back(pending);
-            FileHandling::savePayments("data/payments.txt", payments);
+            Payment pending = paymentQueue.getFront();
 
-            cout << "\n[Queue] APPROVED Payment " << pending.getPaymentId()
-                 << " for Loan " << pending.getLoanId()
-                 << ", Amount: RM " << fixed << setprecision(2) << pending.getAmount() << '\n';
+            cout << "\n[Queue] Next pending payment:" << endl;
+            cout << "  PaymentID: " << pending.getPaymentId() << endl;
+            cout << "  LoanID   : " << pending.getLoanId()   << endl;
+            cout << "  Amount   : RM " << fixed << setprecision(2) << pending.getAmount() << endl;
+            cout << "  Date     : " << pending.getPaymentDate() << endl;
 
-            // Calculate new outstanding for display
-            for (auto &loan : loans)
+            char decision;
+            cout << "\nApprove this payment? (Y/N): ";
+            cin >> decision;
+
+            paymentQueue.dequeue(pending);
+
+            if (decision == 'Y' || decision == 'y')
             {
-                if (loan.getLoanId() == pending.getLoanId())
-                {
-                    LinkedList<Payment> loanPayments = getPaymentsForLoan(loan.getLoanId());
-                    double newOutstanding = loan.calculateOutstandingBalance(loanPayments);
+                payments.push_back(pending);
+                FileHandling::savePayments("data/payments.txt", payments);
 
-                    cout << "[Queue] New outstanding balance for Loan "
-                         << loan.getLoanId()
-                         << " = RM " << fixed << setprecision(2) << newOutstanding << '\n';
-                    break;
+                cout << "\n[Queue] APPROVED Payment " << pending.getPaymentId()
+                     << " for Loan " << pending.getLoanId()
+                     << ", Amount: RM " << fixed << setprecision(2) << pending.getAmount() << endl;
+
+                for (auto &loan : loans)
+                {
+                    if (loan.getLoanId() == pending.getLoanId())
+                    {
+                        LinkedList<Payment> loanPayments = getPaymentsForLoan(loan.getLoanId());
+                        double newOutstanding = loan.calculateOutstandingBalance(loanPayments);
+
+                        cout << "[Queue] New outstanding balance for Loan "
+                             << loan.getLoanId()
+                             << " = RM " << fixed << setprecision(2) << newOutstanding << '\n';
+                        break;
+                    }
                 }
             }
-        }
-        else
-        {
-            cout << "\n[Queue] REJECTED Payment " << pending.getPaymentId()
-                 << " for Loan " << pending.getLoanId()
-                 << ". It was removed from the queue and not recorded.\n";
-        }
-    }
-    catch (const exception& e)
-    {
-        cout << "Error processing payment: " << e.what() << '\n';
-    }
-}
-
-
-void LoanSystem::processAllPayments()
-{
-    if (paymentQueue.isEmpty())
-    {
-        cout << "\n[Queue] No pending payments to process.\n";
-        return;
-    }
-
-    char decision;
-    cout << "\n[Queue] Process ALL pending payments as APPROVED? (Y/N): ";
-    cin >> decision;
-
-    if (!(decision == 'Y' || decision == 'y'))
-    {
-        cout << "[Queue] Batch processing cancelled.\n";
-        return;
-    }
-
-    cout << "\n[Queue] Processing ALL pending payments in FIFO order...\n";
-
-    while (!paymentQueue.isEmpty())
-    {
-        Payment p(0.0, "", "", ""); 
-        if (!paymentQueue.dequeue(p))
-            break;
-
-        // Approve
-        payments.push_back(p);
-
-        // Optional: Update display info for each
-        for (auto &loan : loans)
-        {
-            if (loan.getLoanId() == p.getLoanId())
+            else
             {
-                LinkedList<Payment> loanPayments = getPaymentsForLoan(loan.getLoanId());
-                double newOutstanding = loan.calculateOutstandingBalance(loanPayments);
+                cout << "\n[Queue] REJECTED Payment " << pending.getPaymentId()
+                     << " for Loan " << pending.getLoanId()
+                     << ". It was removed from the queue and not recorded." << endl;
+            }
 
-                cout << "[Queue] Loan " << loan.getLoanId()
-                     << " new outstanding = RM " << fixed << setprecision(2)
-                     << newOutstanding << '\n';
+            if (paymentQueue.isEmpty())
+            {
+                cout << "No more pending payments.\n";
+                break;
+            }
+
+            cout << "\nProcess next payment? (Y/N): ";
+            cin >> decision;
+            if (decision != 'Y' && decision != 'y')
+            {
                 break;
             }
         }
     }
-
-    FileHandling::savePayments("data/payments.txt", payments);
-    cout << "[Queue] All queued payments have been APPROVED and processed.\n";
+    catch (const exception& e)
+    {
+        cout << "Error processing payment: " << e.what() << endl;
+    }
 }
 
 
@@ -634,7 +592,6 @@ void LoanSystem::menuLoop()
                     }
                     else if (choice == 5)
                     {
-                        // Consolidated: Borrower requests a loan
                         createLoan(loggedInUser);
                     }
                     else if (choice == 6)
@@ -676,7 +633,6 @@ void LoanSystem::menuLoop()
         }
         else if (choice == 4)
         {
-            // Consolidated: Admin creates loan (optionally approves immediately)
             createLoan(loggedInUser);
         }
         else if (choice == 5)
@@ -685,22 +641,18 @@ void LoanSystem::menuLoop()
         }
         else if (choice == 6)
         {
-            // check queue front / rear
             displayPendingPayments();
         }
         else if (choice == 7)
         {
-            // process one payment (deQueue 1)
-            processNextPayment();
+            displayPendingLoans();
         }
         else if (choice == 8)
         {
-            // process all payments in queue
-            processAllPayments();
+            processNextPayment();
         }
         else if (choice == 9)
         {
-            // Process Loan Requests (Admin Only)
             processLoanRequests();
         }
         else if (choice == 10)
@@ -731,33 +683,49 @@ void LoanSystem::menuLoop()
 void LoanSystem::processLoanRequests()
 {
     if (loanRequests.isEmpty()) {
-        cout << "\n[Queue] No pending loan requests.\n";
+        cout << "\n[Queue] No pending loan requests." << endl;
         return;
     }
 
     try {
-        Loan request = loanRequests.getFront();
-        cout << "\n--- Processing Loan Request ---\n";
-        cout << "Loan ID: " << request.getLoanId() << " (Provisional)\n";
-        cout << "User ID: " << request.getUserId() << "\n";
-        cout << "Amount : RM " << request.getPrincipal() << "\n";
-        cout << "Term   : " << request.getTermYears() << " years\n";
-        cout << "Date   : " << request.getDate() << "\n";
+        while (true)
+        {
+            Loan request = loanRequests.getFront();
+            cout << "\n--- Processing Loan Request ---" << endl;
+            cout << "Loan ID: " << request.getLoanId() << " (Provisional)" << endl;
+            cout << "User ID: " << request.getUserId() << endl;
+            cout << "Amount : RM " << request.getPrincipal() << endl;
+            cout << "Term   : " << request.getTermYears() << " years" << endl;
+            cout << "Date   : " << request.getDate() << endl;
 
-        cout << "Approve this loan? (Y/N): ";
-        char choice;
-        cin >> choice;
+            cout << "\nApprove this loan? (Y/N): ";
+            char choice;
+            cin >> choice;
 
-        // Remove from queue
-        Loan temp(0,0,0,"","","");
-        loanRequests.dequeue(temp); 
+            // Remove from queue
+            Loan temp(0,0,0,"","","");
+            loanRequests.dequeue(temp); 
 
-        if (choice == 'Y' || choice == 'y') {
-            loans.push_back(request);
-            FileHandling::saveLoans("data/loans.txt", loans);
-            cout << "Loan APPROVED and active.\n";
-        } else {
-            cout << "Loan REJECTED and discarded.\n";
+            if (choice == 'Y' || choice == 'y') {
+                loans.push_back(request);
+                FileHandling::saveLoans("data/loans.txt", loans);
+                cout << "Loan APPROVED and active.\n";
+            } else {
+                cout << "Loan REJECTED and discarded.\n";
+            }
+
+            if (loanRequests.isEmpty())
+            {
+                cout << "No more pending loan requests.\n";
+                break;
+            }
+
+            cout << "\nProcess next loan request? (Y/N): ";
+            cin >> choice;
+            if (choice != 'Y' && choice != 'y')
+            {
+                break;
+            }
         }
 
     } catch (const exception& e) {
@@ -770,7 +738,19 @@ void LoanSystem::displayPendingLoans() const {
         cout << "\n[Queue] No pending loan requests.\n";
         return;
     }
-    cout << "\n[Queue] Pending Loan Requests: " << loanRequests.size() << "\n";
+
+    cout << "\n[Queue] Pending Loan Requests (" << loanRequests.size() << " total):\n";
+    cout << left << setw(10) << "Loan" << setw(10) << "User" << setw(15) << "Amount" << setw(15) << "Date" << "\n";
+    cout << string(50, '-') << "\n";
+
+    const LinkedList<Loan>& list = loanRequests.getList();
+    for (const auto& l : list)
+    {
+         cout << left << setw(10) << l.getLoanId()
+         << setw(10) << l.getUserId()
+         << "RM " << setw(12) << fixed << setprecision(2) << l.getPrincipal()
+         << setw(15) << l.getDate() << "\n";
+    }
 }
 
 void LoanSystem::createLoan(User* currentUser)
@@ -778,12 +758,11 @@ void LoanSystem::createLoan(User* currentUser)
     cout << "\n--- New Loan Application ---\n";
     
     string targetUserId;
-    if (currentUser->getRole() == Role::ADMIN) // ADMIN CREATING LOAN
+    if (currentUser->getRole() == Role::ADMIN) 
     {
         cout << "Enter User ID (Borrower): ";
         cin >> targetUserId;
 
-        // Verify User exists
         bool found = false;
         for (const auto& u : users) {
              if (u.getUserId() == targetUserId) {
@@ -796,16 +775,13 @@ void LoanSystem::createLoan(User* currentUser)
             return;
         }
     }
-    else // BORROWER CREATING LOAN
+    else 
     {
         targetUserId = currentUser->getUserId();
     }
     
-    // Generate ID Logic (Unified)
-    // Needs to check both loans list AND pending requests queue to avoid duplicates
     int maxId = 0;
     
-    // Check Active Loans
     for (const auto &loan : loans) {
         string numPart = loan.getLoanId().substr(1);
         try {
@@ -814,7 +790,6 @@ void LoanSystem::createLoan(User* currentUser)
         } catch (...) {}
     }
     
-    // Check Pending Loans (Queue)
     const LinkedList<Loan>& pendingList = loanRequests.getList();
     for (const auto &loan : pendingList) {
         string numPart = loan.getLoanId().substr(1);
@@ -856,7 +831,7 @@ void LoanSystem::createLoan(User* currentUser)
 
     if (currentUser->getRole() == Role::ADMIN)
     {
-        cout << "Approve immediately? (Y/N): ";
+        cout << "\nApprove immediately? (Y/N): ";
         char ans;
         cin >> ans;
         if (ans == 'Y' || ans == 'y') {

@@ -32,7 +32,7 @@ public:
     void menuLoop();
 
     // Functions
-    void createLoan(User* currentUser); // Unified function
+    void createLoan(User* currentUser); 
     void makePayment(User* currentUser);
     void viewPaymentHistory(const string& filterUserId = "");
     void viewUpcomingPayments(const string& filterUserId = "");
@@ -50,7 +50,6 @@ public:
     //Queue payments for processing
     void enqueuePayment(const Payment& payment);  // borrower enQueue
     void processNextPayment();                    // admin deQueue one
-    void processAllPayments();                    // admin deQueue all
     void displayPendingPayments() const;          // (optional) print queue
     
     // Process Loan Requests
